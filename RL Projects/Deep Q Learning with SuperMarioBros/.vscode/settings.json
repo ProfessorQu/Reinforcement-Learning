@@ -1,0 +1,6 @@
+{
+	"python.pythonPath": "C:\\Users\\quint\\.virtualenvs\\Deep_Q_Learning_with_SuperMarioBros-Nvi1aKoN\\Scripts\\python.exe",
+	"python.linting.pylintEnabled": false,
+	"python.linting.flake8Enabled": true,
+	"python.linting.enabled": true
+}
