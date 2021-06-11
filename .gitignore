@@ -127,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+RL Projects/Deep Q Learning with SuperMarioBros/checkpoint.pth

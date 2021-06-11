@@ -8,14 +8,14 @@
 			"name": "Train",
 			"type": "python",
 			"request": "launch",
-			"program": "${workspaceFolder}/train.py",
+			"program": "${workspaceFolder}/Python/train.py",
 			"console": "integratedTerminal"
 		},
 		{
 			"name": "Play",
 			"type": "python",
 			"request": "launch",
-			"program": "${workspaceFolder}/play.py",
+			"program": "${workspaceFolder}/Python/play.py",
 			"console": "integratedTerminal"
 		},
 	]

@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 from collections import deque, namedtuple
 import random
+import numpy as np
 
 
 class DQN(nn.Module):
@@ -53,12 +54,20 @@ class ReplayMemory():
     def sample(self):
         experiences = random.sample(self.memory, k=self.batch_size)
 
-        states = torch.Tensor([e.state for e in experiences]).reshape(1, -1)
-        actions = torch.Tensor([e.action for e in experiences]).reshape(1, -1)
-        rewards = torch.Tensor([e.reward for e in experiences]).reshape(1, -1)
-        next_states = torch.Tensor(
-            [e.next_state for e in experiences]).reshape(1, -1)
-        dones = torch.Tensor([e.done for e in experiences]).reshape(1, -1)
+        states = np.vstack([e.state for e in experiences])
+        states = torch.from_numpy(states).float().to(self.device)
+
+        actions = np.vstack([e.action for e in experiences])
+        actions = torch.from_numpy(actions).long().to(self.device)
+
+        rewards = np.vstack([e.reward for e in experiences])
+        rewards = torch.from_numpy(rewards).float().to(self.device)
+
+        next_states = np.vstack([e.next_state for e in experiences])
+        next_states = torch.from_numpy(next_states).float().to(self.device)
+
+        dones = np.vstack([e.done for e in experiences]).astype(np.uint8)
+        dones = torch.from_numpy(dones).float().to(self.device)
 
         return (states, actions, rewards, next_states, dones)
 

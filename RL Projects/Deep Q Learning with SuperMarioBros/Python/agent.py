@@ -12,7 +12,7 @@ class Agent():
     def __init__(self, state_dim, action_dim, lr,
                  epsilon, min_epsilon, epsilon_decay,
                  gamma, tau, update_target=4,
-                 memory_size=int(1e5), batch_size=64):
+                 memory_size=int(1e3), batch_size=64):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         self.state_dim = state_dim
@@ -29,7 +29,7 @@ class Agent():
 
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=lr)
 
-        self.memory = ReplayMemory(memory_size, batch_size)
+        self.memory = ReplayMemory(memory_size, batch_size, self.device)
         self.batch_size = batch_size
 
         self.t_step = 0
@@ -80,8 +80,8 @@ class Agent():
     def soft_update(self):
         for target_param, local_param in zip(self.qnetwork_target.parameters(),
                                              self.qnetwork_local.parameters()):
-            target_param.data.copy(self.tau * local_param.data +
-                                   (1 - self.tau) * target_param.data)
+            target_param.data.copy_(self.tau * local_param.data +
+                                    (1 - self.tau) * target_param.data)
 
     def act(self, state, episode):
         state = torch.tensor(state).to(self.device)
