@@ -1,8 +1,6 @@
 
 from gym.wrappers import FrameStack
 
-import torch
-
 import numpy as np
 
 from nes_py.wrappers import JoypadSpace
@@ -20,8 +18,7 @@ print("Setting up agent...")
 state_dim = np.prod(env.observation_space.shape)
 agent = Agent(state_dim=state_dim, action_dim=env.action_space.n,
               epsilon=1.0, min_epsilon=0.001, epsilon_decay=0.995,
-              lr=0.0005, gamma=0.99, tau=0.001)
-agent.qnetwork_local.load_state_dict(torch.load('checkpoint.pth'))
+              lr=0.0005, gamma=0.99, tau=0.001, load=True)
 
 print("Starting playing...")
 scores = []
@@ -31,12 +28,14 @@ actions = ["Do Nothing", "Right", "Jump Right", "Run Right",
 
 for episode in range(3):
     state = env.reset()
-    score, done = 0, False
+    score, t, done = 0, 0, False
     eps_score = []
     while not done:
         state = (np.array(state, dtype=np.float32) / 255).flatten()
 
-        action = agent.act(state, episode)
+        if t % 2 == 0:
+            action = agent.act(state, episode)
+
         next_state, reward, done, _ = env.step(action)
 
         env.render()
@@ -49,4 +48,6 @@ for episode in range(3):
 
         print(f"\rEpisode {episode}"
               f"\tAverage Score: {round(np.mean(eps_score), 2)}"
-              f"\tAction: {actions[action]}", end="")
+              f"\tAction: {actions[action]}            ", end="")
+
+        t += 1

@@ -11,7 +11,7 @@ from dqn_memory import DQN, ReplayMemory
 class Agent():
     def __init__(self, state_dim, action_dim, lr,
                  epsilon, min_epsilon, epsilon_decay,
-                 gamma, tau, update_target=4,
+                 gamma, tau, load, update_target=4,
                  memory_size=int(1e3), batch_size=64):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
@@ -42,6 +42,10 @@ class Agent():
 
         self.gamma = gamma
         self.tau = tau
+
+        if load:
+            self.qnetwork_local.load_state_dict(torch.load('checkpoint.pth'))
+            self.qnetwork_target.load_state_dict(torch.load('checkpoint.pth'))
 
     def step(self, state, action, reward, next_state, done):
         self.memory.push(state, action, reward, next_state, done)

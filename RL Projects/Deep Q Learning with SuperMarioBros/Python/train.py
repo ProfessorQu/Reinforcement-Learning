@@ -1,8 +1,8 @@
 from gym.wrappers import FrameStack
 
-import torch
-
+import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 from nes_py.wrappers import JoypadSpace
 import gym_super_mario_bros
@@ -19,21 +19,27 @@ print("Setting up agent...")
 state_dim = np.prod(env.observation_space.shape)
 agent = Agent(state_dim=state_dim, action_dim=env.action_space.n,
               epsilon=1.0, min_epsilon=0.001, epsilon_decay=0.995,
-              lr=0.0005, gamma=0.99, tau=0.001)
+              lr=0.0005, gamma=0.99, tau=0.001, load=True)
 
 print("Starting training...")
 printed_episode = 0
 scores = []
-for e in range(20):
+
+n_episodes = 60
+n_steps = 100
+
+for e in range(n_episodes):
     state = env.reset()
+    state = (np.array(state, dtype=np.float32) / 255).flatten()
+
     score, done = 0, False
 
     eps_score = []
     t = 0
-    for t in range(300):
-        state = (np.array(state, dtype=np.float32) / 255).flatten()
+    for t in range(n_steps):
+        if t % 2 == 0:
+            action = agent.act(state, e)
 
-        action = agent.act(state, e)
         next_state, reward, done, _ = env.step(action)
 
         next_state = (np.array(next_state, dtype=np.float32) / 255).flatten()
@@ -43,17 +49,21 @@ for e in range(20):
         state = next_state
         score += reward
 
-        scores.append(score)
         eps_score.append(score)
 
         print(f"\rEpisode {e}"
-              f"\tAverage Score: {round(np.mean(eps_score), 2)}   "
-              f"\tTime Step: {t}  ", end="")
+              f"\tAverage Score: {round(np.mean(eps_score), 2)}"
+              f"\t\tTime Step: {t}  ", end="")
 
-        if e // 10 == printed_episode:
+        if e // 10 == printed_episode and e >= 10:
             print(f"\rEpisode {e}"
-                  f"\tAverage Score: {round(np.mean(eps_score), 2)}   "
-                  f"\tTime Step: {t}  ")
+                  f"\tAverage Score: {round(np.mean(eps_score), 2)}"
+                  f"\t\tTime Step: {t}  ")
             printed_episode = e // 10 + 1
+
+    scores.append(score)
+
+plt.plot([i for i in range(n_episodes)], scores)
+plt.show()
 
 torch.save(agent.qnetwork_local.state_dict(), "checkpoint.pth")
