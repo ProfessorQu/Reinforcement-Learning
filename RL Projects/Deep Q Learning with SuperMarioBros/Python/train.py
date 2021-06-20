@@ -13,7 +13,7 @@ from agent import Agent
 env = gym_super_mario_bros.make('SuperMarioBros-v0')
 
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
-env = FrameStack(env, num_stack=4)
+env = FrameStack(env, num_stack=16)
 
 print("Setting up agent...")
 state_dim = np.prod(env.observation_space.shape)
@@ -25,8 +25,8 @@ print("Starting training...")
 printed_episode = 0
 scores = []
 
-n_episodes = 60
-n_steps = 100
+n_episodes = 30
+n_steps = 500
 
 for e in range(n_episodes):
     state = env.reset()
@@ -37,7 +37,7 @@ for e in range(n_episodes):
     eps_score = []
     t = 0
     for t in range(n_steps):
-        if t % 2 == 0:
+        if t % 4 == 0:
             action = agent.act(state, e)
 
         next_state, reward, done, _ = env.step(action)
@@ -52,15 +52,21 @@ for e in range(n_episodes):
         eps_score.append(score)
 
         print(f"\rEpisode {e}"
-              f"\tAverage Score: {round(np.mean(eps_score), 2)}"
-              f"\t\tTime Step: {t}  ", end="")
+              f"\tTime Step: {t}    "
+              f"\tAverage Episode Score: {np.mean(eps_score):.2f}   "
+              f"\tAverage Total Score: {np.mean(scores):.2f}   ", end="")
 
         if e // 10 == printed_episode and e >= 10:
             print(f"\rEpisode {e}"
-                  f"\tAverage Score: {round(np.mean(eps_score), 2)}"
-                  f"\t\tTime Step: {t}  ")
+                  f"\tTime Step: {t}    "
+                  f"\tAverage Episode Score: {np.mean(eps_score):.2f}    "
+                  f"\tAverage Total Score: {np.mean(scores):.2f}   ", end="")
             printed_episode = e // 10 + 1
 
+        if done:
+            break
+
+    torch.save(agent.qnetwork_local.state_dict(), "checkpoint.pth")
     scores.append(score)
 
 plt.plot([i for i in range(n_episodes)], scores)

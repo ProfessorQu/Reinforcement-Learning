@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import os
 
 import torch
 import torch.nn as nn
@@ -44,8 +45,11 @@ class Agent():
         self.tau = tau
 
         if load:
-            self.qnetwork_local.load_state_dict(torch.load('checkpoint.pth'))
-            self.qnetwork_target.load_state_dict(torch.load('checkpoint.pth'))
+            if os.path.isfile('checkpoint.pth'):
+                self.qnetwork_local.load_state_dict(
+                    torch.load('checkpoint.pth'))
+                self.qnetwork_target.load_state_dict(
+                    torch.load('checkpoint.pth'))
 
     def step(self, state, action, reward, next_state, done):
         self.memory.push(state, action, reward, next_state, done)

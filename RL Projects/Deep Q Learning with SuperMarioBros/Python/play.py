@@ -12,7 +12,7 @@ from agent import Agent
 env = gym_super_mario_bros.make('SuperMarioBros-v0')
 
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
-env = FrameStack(env, num_stack=4)
+env = FrameStack(env, num_stack=16)
 
 print("Setting up agent...")
 state_dim = np.prod(env.observation_space.shape)
@@ -33,7 +33,7 @@ for episode in range(3):
     while not done:
         state = (np.array(state, dtype=np.float32) / 255).flatten()
 
-        if t % 2 == 0:
+        if t % 4 == 0:
             action = agent.act(state, episode)
 
         next_state, reward, done, _ = env.step(action)
@@ -47,7 +47,8 @@ for episode in range(3):
         eps_score.append(score)
 
         print(f"\rEpisode {episode}"
-              f"\tAverage Score: {round(np.mean(eps_score), 2)}"
-              f"\tAction: {actions[action]}            ", end="")
+              f"\tTimestep: {t}"
+              f"\t\tAverage Episode Score: {round(np.mean(eps_score), 2)}"
+              f"\t\tAction: {actions[action]}", end="")
 
         t += 1
